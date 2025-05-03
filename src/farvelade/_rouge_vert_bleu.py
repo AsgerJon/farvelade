@@ -248,29 +248,15 @@ class RougeVertBleu(BaseObject):
     self.__green_channel__ = args[1]
     self.__blue_channel__ = args[2]
 
-  @overload(float, float, float)
-  def __init__(self, *args: float) -> None:
-    """Initialize RougeVertBleu with red, green, and blue values."""
-    for arg in args:
-      self._validateUnitRange(arg)
-    intArgs = []
-    for arg in args:
-      intArgs.append(int(round(arg * 255)))
-    self.__init__(*intArgs)
-
   @overload(int)
-  def __init__(self, *args: int) -> None:
+  def __init__(self, monoChrome: int) -> None:
     """Initialize RougeVertBleu with a single integer value."""
-    self.__init__(args[0], args[0], args[0], )
-
-  @overload(float)
-  def __init__(self, *args: float) -> None:
-    """Initialize RougeVertBleu with a single float value."""
-    self.__init__(args[0], args[0], args[0], )
+    self.__init__(monoChrome, monoChrome, monoChrome)
 
   @overload(THIS)
   def __init__(self, other: Self) -> None:
     """Initialize RougeVertBleu with a RougeVertBleu instance."""
+    self.__init__(other.red, other.green, other.blue)
 
   @overload(QColor)
   def __init__(self, color: QColor) -> None:
@@ -281,6 +267,26 @@ class RougeVertBleu(BaseObject):
   def __init__(self, color: str) -> None:
     """Initialize RougeVertBleu with a color name."""
     values = getcolor(color, 'RGB')
+
+  @overload()
+  def __init__(self, **kwargs) -> None:
+    """Initialize with keyword arguments"""
+    redKeys = """red, r, redValue, redComponent"""
+    greenKeys = """green, g, greenValue, greenComponent"""
+    blueKeys = """blue, b, blueValue, blueComponent"""
+    KEYS = [stringList(k) for k in [redKeys, greenKeys, blueKeys]]
+    names = stringList("""red, green, blue""")
+    defaultValues = dict(red=255, green=255, blue=255, )
+    kwargValues = dict(red=-1, green=-1, blue=-1, )
+    for name, keys in zip(names, KEYS):
+      for key in keys:
+        if key in kwargs:
+          kwargValues[name] = kwargs[key]
+          break
+      else:
+        kwargValues[name] = defaultValues[name]
+    values = [kwargValues[name] for name in names]
+    self.__init__(*values)
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   #  IMPLEMENTATION OF ITERATION  # # # # # # # # # # # # # # # # # # # # #
