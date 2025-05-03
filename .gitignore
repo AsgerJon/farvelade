@@ -172,3 +172,9 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+/src/deprecated/
+/main.py
+/src/deprecated/_monochrome.py
+/yolo.py
+/src/deprecated/_rouge_vert_bleu.py
+/src/deprecated/_rgb.py
