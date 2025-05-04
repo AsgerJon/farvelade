@@ -39,10 +39,7 @@ class Luma(AbstractDescriptor):
 
   def __set_name__(self, owner: type, name: str) -> None:
     """Set the name of the field."""
-    from . import RougeVertBleu
-    if not issubclass(owner, RougeVertBleu):
-      raise SubclassException(owner, RougeVertBleu)
-    AbstractDescriptor.__set_name__(self, owner, name)
 
-  def _instanceGet(self, instance: Any) -> float:
-    """Get the luma value."""
+  def _instanceGet(self, instance: Any, **kwargs) -> Any:
+    """Get the value of the descriptor."""
+

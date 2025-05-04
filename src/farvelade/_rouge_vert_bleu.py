@@ -90,6 +90,16 @@ class RougeVertBleu(BaseObject):
   greenReal = Field()
   blueReal = Field()
 
+  # - Gamma corrected components
+  redGamma = Field()
+  greenGamma = Field()
+  blueGamma = Field()
+
+  # - XYZ components
+  X = Field()
+  Y = Field()
+  Z = Field()
+
   #  Validator methods
   @staticmethod
   def _validateIntegerRange(value: int) -> None:
@@ -199,6 +209,49 @@ class RougeVertBleu(BaseObject):
     """Get the blue component as a real number."""
     return float(self._unitToReal(self.blueF))
 
+  # - - Gamma corrected components
+  @staticmethod
+  def _applyGamma(value: float) -> float:
+    """Apply gamma correction to the value."""
+    if value < 0.0 or value > 1.0:
+      raise UnitDomainException(value)
+    if value < 0.04045:
+      return value / 12.92
+    return ((value + 0.055) / 1.055) ** 2.4
+
+  @redGamma.GET
+  def _getRedGamma(self, ) -> float:
+    """Get the red component as a gamma corrected value."""
+    return float(self._applyGamma(self.redF))
+
+  @greenGamma.GET
+  def _getGreenGamma(self, ) -> float:
+    """Get the green component as a gamma corrected value."""
+    return float(self._applyGamma(self.greenF))
+
+  @blueGamma.GET
+  def _getBlueGamma(self, ) -> float:
+    """Get the blue component as a gamma corrected value."""
+    return float(self._applyGamma(self.blueF))
+
+  @X.GET
+  def _getX(self, ) -> float:
+    """Get the X component of the color."""
+    r, g, b = self.redGamma, self.greenGamma, self.blueGamma
+    return 0.4124564 * r + 0.3575761 * g + 0.1804375 * b
+
+  @Y.GET
+  def _getY(self, ) -> float:
+    """Get the Y component of the color."""
+    r, g, b = self.redGamma, self.greenGamma, self.blueGamma
+    return 0.2126729 * r + 0.7151522 * g + 0.0721750 * b
+
+  @Z.GET
+  def _getZ(self, ) -> float:
+    """Get the Z component of the color."""
+    r, g, b = self.redGamma, self.greenGamma, self.blueGamma
+    return 0.0193339 * r + 0.1191920 * g + 0.9503041 * b
+
   # - Setters
   # - - Floating point components
   @redF.SET
@@ -234,6 +287,58 @@ class RougeVertBleu(BaseObject):
   def _setBlueReal(self, value: float) -> None:
     """Set the blue component from a real number."""
     self.__blue_channel__ = int(round(self._realToUnit(value) * 255.0))
+
+  # - - Gamma corrected components
+  @staticmethod
+  def _unApplyGamma(value: float) -> float:
+    """
+    Unapply gamma correction to the value.
+    """
+    if value < 0.0 or value > 1.0:
+      raise UnitDomainException(value)
+    if value < 0.0031308:
+      return value * 12.92
+    return 1.055 * (value ** (1 / 2.4)) - 0.055
+
+  @redGamma.SET
+  def _setRedGamma(self, value: float) -> None:
+    """Set the red component from a gamma corrected value."""
+    self.redF = self._unApplyGamma(value)
+
+  @greenGamma.SET
+  def _setGreenGamma(self, value: float) -> None:
+    """Set the green component from a gamma corrected value."""
+    self.greenF = self._unApplyGamma(value)
+
+  @blueGamma.SET
+  def _setBlueGamma(self, value: float) -> None:
+    """Set the blue component from a gamma corrected value."""
+    self.blueF = self._unApplyGamma(value)
+
+  # - - XYZ components
+  @X.SET
+  def _setX(self, value: float) -> None:
+    """Set the X component of the color."""
+    r, g, b = self.redGamma, self.greenGamma, self.blueGamma
+    self.redGamma = value / 0.4124564
+    self.greenGamma = value / 0.3575761
+    self.blueGamma = value / 0.1804375
+
+  @Y.SET
+  def _setY(self, value: float) -> None:
+    """Set the Y component of the color."""
+    r, g, b = self.redGamma, self.greenGamma, self.blueGamma
+    self.redGamma = value / 0.2126729
+    self.greenGamma = value / 0.7151522
+    self.blueGamma = value / 0.0721750
+
+  @Z.SET
+  def _setZ(self, value: float) -> None:
+    """Set the Z component of the color."""
+    r, g, b = self.redGamma, self.greenGamma, self.blueGamma
+    self.redGamma = value / 0.0193339
+    self.greenGamma = value / 0.1191920
+    self.blueGamma = value / 0.9503041
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   #  CONSTRUCTORS # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
