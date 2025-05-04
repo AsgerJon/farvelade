@@ -256,6 +256,10 @@ class RougeVertBleu(BaseObject):
   @overload(THIS)
   def __init__(self, other: Self) -> None:
     """Initialize RougeVertBleu with a RougeVertBleu instance."""
+    if TYPE_CHECKING:
+      assert isinstance(other.red, int)
+      assert isinstance(other.green, int)
+      assert isinstance(other.blue, int)
     self.__init__(other.red, other.green, other.blue)
 
   @overload(QColor)
@@ -406,7 +410,7 @@ class RougeVertBleu(BaseObject):
       else:
         pass
 
-  @overload(int)
+  @overload(int, int)
   def __setitem__(self, index: int, value: int) -> None:
     """Set the color component at the given index."""
     if index > 2:
@@ -426,7 +430,7 @@ class RougeVertBleu(BaseObject):
       else:
         return None
 
-  @overload(slice)
+  @overload(slice, list)
   def __setitem__(self, index: slice, value: list[int]) -> None:
     """Set the color components in the given range."""
     if index.start is None:
@@ -442,7 +446,8 @@ class RougeVertBleu(BaseObject):
     for i in range(start, stop):
       self[i] = value[i - start]
 
-  @overload(str)
+  @overload(str, float)
+  @overload(str, int)
   def __setitem__(self, key: str, value: int) -> None:
     """Set the color component with the given name."""
     data = self._getSetMap()
