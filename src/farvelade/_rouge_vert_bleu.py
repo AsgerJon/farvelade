@@ -44,6 +44,8 @@ if TYPE_CHECKING:
   GetMap: TypeAlias = dict[Union[str, int], Getter]
   SetMap: TypeAlias = dict[Union[str, int], Setter]
 
+  R3: TypeAlias = tuple[float, float, float]
+
 epsilon = 1e-10
 
 
@@ -84,6 +86,7 @@ class RougeVertBleu(BaseObject):
   redF = Field()
   greenF = Field()
   blueF = Field()
+  F = Field()
 
   # - Components mapped to real number-line
   redReal = Field()
@@ -192,6 +195,11 @@ class RougeVertBleu(BaseObject):
   def _getBlueF(self, ) -> float:
     """Get the blue component as a float."""
     return float(self.blue / 255.0)
+
+  @F.GET
+  def _getF(self, ) -> R3:
+    """Get the color as a float."""
+    return self.redF, self.greenF, self.blueF
 
   # - - Components mapped to real number-line
   @redReal.GET

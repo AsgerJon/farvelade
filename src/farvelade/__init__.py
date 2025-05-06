@@ -5,4 +5,9 @@ to external libraries such as QColor in Qt"""
 from __future__ import annotations
 
 from ._rouge_vert_bleu import RougeVertBleu
-from ._hsv import HSV
+from ._ok_lab import OKLab
+
+__all__ = [
+    'RougeVertBleu',
+    'OKLab',
+]

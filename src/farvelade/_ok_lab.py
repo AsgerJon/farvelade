@@ -70,6 +70,22 @@ class OKLab(RougeVertBleu):
 
     return L, A, B
 
+  @classmethod
+  def _getGammaRGB(cls, _L: float, _A: float, _B: float) -> R3:
+    """
+    Returns the RGB values from the Lab values.
+    """
+    L0 = (_L + 0.3963377774 * _A + 0.2158037573 * _B) ** 3
+    M0 = (_L - 0.1055613458 * _A - 0.0638541728 * _B) ** 3
+    S0 = (_L - 0.0894841775 * _A - 1.2914855480 * _B) ** 3
+
+    #  OKLab to LMS
+    r = (4.0767416621 * L0 - 3.3077115913 * M0 + 0.2309699292 * S0)
+    g = (-1.2684380049 * L0 + 2.6097574011 * M0 - 0.3413193965 * S0)
+    b = (-0.0041960863 * L0 - 0.7034186147 * M0 + 2.4092283606 * S0)
+
+    return r, g, b
+
   #  Accessor methods for virtual variables
   # - Getters
   @L.GET
@@ -91,3 +107,101 @@ class OKLab(RougeVertBleu):
   @L.SET
   def _setL(self, value: float) -> None:
     """Sets the L value."""
+    r, g, b = self._getGammaRGB(value, self.A, self.B)
+    self.redGamma = r
+    self.greenGamma = g
+    self.blueGamma = b
+
+  @A.SET
+  def _setA(self, value: float) -> None:
+    """Sets the A value."""
+    r, g, b = self._getGammaRGB(self.L, value, self.B)
+    self.redGamma = r
+    self.greenGamma = g
+    self.blueGamma = b
+
+  @B.SET
+  def _setB(self, value: float) -> None:
+    """Sets the B value."""
+    r, g, b = self._getGammaRGB(self.L, self.A, value)
+    self.redGamma = r
+    self.greenGamma = g
+    self.blueGamma = b
+
+  #  Public methods
+  def __add__(self, other: Any) -> Self:
+    """
+    Adds two OKLab colors together.
+    """
+    other = self._resolveOther(other)
+    if other is NotImplemented:
+      return NotImplemented
+    cls = type(self)
+    out = cls()
+    out.L = (self.L + other.L) / 2
+    out.A = self.A + other.A
+    out.B = self.B + other.B
+    return out
+
+  def __neg__(self) -> Self:
+    """
+    Negates the color.
+    """
+    cls = type(self)
+    out = cls()
+    out.L = self.L
+    out.A = -self.A
+    out.B = -self.B
+    return out
+
+  def __sub__(self, other: Any) -> Self:
+    """
+    Subtracts two OKLab colors.
+    """
+    other = self._resolveOther(other)
+    if other is NotImplemented:
+      return NotImplemented
+    return self + -other
+
+  def __mul__(self, other: Any) -> Self:
+    """
+    Multiplies two OKLab colors.
+    """
+    other = self._resolveOther(other)
+    if other is NotImplemented:
+      return NotImplemented
+    cls = type(self)
+    rs = self.redReal + other.redReal
+    r = self.redReal * other.redReal / rs
+    gs = self.greenReal + other.greenReal
+    g = self.greenReal * other.greenReal / gs
+    bs = self.blueReal + other.blueReal
+    b = self.blueReal * other.blueReal / bs
+    out = cls()
+    out.redReal = r
+    out.greenReal = g
+    out.blueReal = b
+    return out
+
+  def __invert__(self) -> Self:
+    """
+    Inverts the color.
+    """
+    cls = type(self)
+    out = cls()
+    r = 1 / self.redReal
+    g = 1 / self.greenReal
+    b = 1 / self.blueReal
+    out.redReal = r
+    out.greenReal = g
+    out.blueReal = b
+    return out
+
+  def __truediv__(self, other: Any) -> Self:
+    """
+    Divides two OKLab colors.
+    """
+    other = self._resolveOther(other)
+    if other is NotImplemented:
+      return NotImplemented
+    return self * ~other
