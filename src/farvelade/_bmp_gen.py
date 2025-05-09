@@ -1,9 +1,7 @@
-"""Monochrome represents a monochrome color in RGB space."""
+"""BMPGen provides a bitmap file generator."""
 #  AGPL-3.0 license
 #  Copyright (c) 2025 Asger Jon Vistisen
 from __future__ import annotations
-
-from worktoy.mcls import BaseObject
 
 try:
   from typing import TYPE_CHECKING
@@ -14,9 +12,10 @@ except ImportError:
     TYPE_CHECKING = False
 
 if TYPE_CHECKING:
-  pass
+  from typing import Any, Optional, Union, Self, Callable, TypeAlias, Never
 
 
-class Monochrome(BaseObject):
-  """Monochrome represents a monochrome color in RGB space."""
-  pass
+class BMPGen:
+  """
+  BMPGen provides a bitmap file generator.
+  """
